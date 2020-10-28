@@ -38,3 +38,17 @@ jobs:
     - name: Test with pytest
       run: |
         pytest
+  codecov:
+    runs-on: self-hosted
+    strategy:
+      fail-fast: false
+    steps:
+    - uses: actions/checkout@master
+    - uses: codecov/codecov-action@v1
+      with:
+        # file: ./coverage.xml # optional
+        # files: ./coverage1.xml,./coverage2.xml # optional
+        # flags: unittests # optional
+        name: codecov-umbrella # optional
+        fail_ci_if_error: true # optional (default = false)
+        verbose: true # optional (default = false)
