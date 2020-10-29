@@ -5,7 +5,8 @@
 import asyncio
 import functools
 from concurrent.futures import Executor
-from typing import Tuple, Union
+from typing import Tuple, Union, Optional
+import json
 
 import httpx
 import requests
@@ -13,7 +14,8 @@ from pbincli.api import PrivateBin
 from pbincli.format import Paste
 
 from privatebinapi.common import DEFAULT_HEADERS
-from privatebinapi.exceptions import BadCompressionTypeError, BadExpirationTimeError, BadFormatError, PrivateBinAPIError
+from privatebinapi.exceptions import BadCompressionTypeError, BadExpirationTimeError, BadFormatError, \
+    PrivateBinAPIError, BadServerResponseError
 
 __all__ = ('send', 'send_async')
 
@@ -56,7 +58,10 @@ def prepare_upload(server: str, *, text: str = None, file: str = None, password:
         'no_insecure_warning': False
     }
     api_client = PrivateBin(settings)
-    version = api_client.getVersion()
+    try:
+        version = api_client.getVersion()
+    except json.JSONDecodeError as error:
+        raise BadServerResponseError("The host failed to respond with PrivateBin version information.") from error
     paste.setVersion(version)
     if version == 2 and compression:
         if compression in COMPRESSION_TYPES:
@@ -96,7 +101,7 @@ def process_result(response: Union[requests.Response, httpx.Response], passcode:
 
 
 def send(server: str, *, text: str = None, file: str = None, password: str = None, expiration: str = '1day',
-         compression: str = 'zlib', formatting: str = 'plaintext', burn_after_reading: bool = False,
+         compression: Optional[str] = 'zlib', formatting: str = 'plaintext', burn_after_reading: bool = False,
          proxies: dict = None, discussion: bool = False):
     """Upload a paste to a PrivateBin host.
 
@@ -117,10 +122,12 @@ def send(server: str, *, text: str = None, file: str = None, password: str = Non
         formatting=formatting, burn_after_reading=burn_after_reading, discussion=discussion
     )
     with requests.Session() as session:
-        if proxies:
-            session.proxies = proxies
-        session.headers = DEFAULT_HEADERS
-        response = session.post(server, data=data)
+        response = session.post(
+            server,
+            headers=DEFAULT_HEADERS,
+            proxies=proxies,
+            data=data
+        )
     return process_result(response, passcode)
 
 

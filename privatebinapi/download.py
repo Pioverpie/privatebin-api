@@ -60,10 +60,11 @@ def get(url: str, *, proxies: dict = None, password: str = None) -> str:
     :return: The decrypted text content of the paste.
     """
     with requests.Session() as session:
-        if proxies:
-            session.proxies = proxies
-        session.headers = DEFAULT_HEADERS
-        response = session.get(url)
+        response = session.get(
+            url,
+            headers=DEFAULT_HEADERS,
+            proxies=proxies
+        )
     return decrypt_paste(verify_response(response), extract_passphrase(url), password=password)
 
 
