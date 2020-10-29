@@ -70,6 +70,6 @@ class FakeResponse:
 
 def test_bad_response():
     try:
-        privatebinapi.common.verify_response(FakeResponse())  # noqa
+        common.verify_response(FakeResponse())  # noqa
     except privatebinapi.BadServerResponseError:
         pass
