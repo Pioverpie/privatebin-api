@@ -78,7 +78,7 @@ Putting a password on your paste is easy:
 
 #### Choosing Compression
 
-There are only two valid options for this parameter: `"zlib"` and `None`. The default is `"zlip"`.
+There are only two valid options for this parameter: `"zlib"` and `None`. The default is `"zlib"`.
 ```python
 >>> import privatebinapi
 >>> paste_url, delete_token = privatebinapi.send(
