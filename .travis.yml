@@ -8,8 +8,8 @@ python:
   - "nightly"  # nightly build
 # command to install dependencies
 install:
-  - pip install -u -r requirements.txt
-  - pip install -u coverage pytest pytest-asyncio
+  - pip install -U -r requirements.txt
+  - pip install -U coverage pytest pytest-asyncio
 # command to run tests
 script:
   - coverage run -m pytest
