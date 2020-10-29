@@ -137,7 +137,10 @@ Getting a paste from a PrivateBin host is very easy:
 If the paste is password protected, use the `password` parameter.
 ```python
 >>> import privatebinapi
->>> paste_text = privatebinapi.get("https://example.com/?fakePasteLink#1234567890", password="Secure123!")
+>>> paste_text = privatebinapi.get(
+...     "https://example.com/?fakePasteLink#1234567890",
+...     password="Secure123!"
+... )
 ```
 
 ### Deleting a Paste
@@ -145,7 +148,10 @@ If the paste is password protected, use the `password` parameter.
 To delete a paste, you need its URL and delete token.
 ```python
 >>> import privatebinapi
->>> paste_id = privatebinapi.delete("https://example.com/?fakePasteLink#1234567890", "fake1delete2token3")
+>>> paste_id = privatebinapi.delete(
+...     "https://example.com/?fakePasteLink#1234567890",
+...     "fake1delete2token3"
+... )
 ```
 
 ### Using a Proxy
