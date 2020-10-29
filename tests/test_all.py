@@ -1,10 +1,11 @@
 import asyncio
+import json
 
 import pytest
 
 import privatebinapi
-from privatebinapi import common
-from tests import MESSAGE, SERVER
+from privatebinapi import common, deletion, download, upload
+from tests import MESSAGE, RESPONSE_DATA, SERVER
 
 
 def test_full():
@@ -63,13 +64,48 @@ def test_bad_server():
 
 
 class FakeResponse:
-    @staticmethod
-    def json():
-        return ''
+    url = SERVER
+
+    def __init__(self, error=False):
+        self.error = error
+
+    def json(self):
+        if self.error:
+            raise json.JSONDecodeError('', '', 0)
+        else:
+            return RESPONSE_DATA
 
 
-def test_bad_response():
+def test_bad_response_verification():
     try:
-        common.verify_response(FakeResponse())  # noqa
+        common.verify_response(FakeResponse(error=True))  # noqa
     except privatebinapi.BadServerResponseError:
+        pass
+
+
+def test_bad_process_result():
+    try:
+        upload.process_result(FakeResponse(), '')  # noqa
+    except privatebinapi.PrivateBinAPIError:
+        pass
+
+
+def test_bad_process_url():
+    try:
+        deletion.process_url('https://example.com')
+    except ValueError:
+        pass
+
+
+def test_bad_decrypt():
+    try:
+        download.decrypt_paste(RESPONSE_DATA, '', '')
+    except privatebinapi.PrivateBinAPIError:
+        pass
+
+
+def test_bad_extract_passphrase():
+    try:
+        download.extract_passphrase('https://www.example.com')
+    except ValueError:
         pass

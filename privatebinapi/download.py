@@ -2,7 +2,6 @@
 
 """This module provides functions to download pastes from PrivateBin hosts."""
 
-import asyncio
 import functools
 from concurrent.futures import Executor
 
@@ -10,7 +9,7 @@ import httpx
 import requests
 from pbincli.format import Paste
 
-from privatebinapi.common import DEFAULT_HEADERS, verify_response
+from privatebinapi.common import DEFAULT_HEADERS, get_loop, verify_response
 from privatebinapi.exceptions import PrivateBinAPIError
 
 __all__ = ('get', 'get_async')
@@ -80,4 +79,4 @@ async def get_async(url: str, *, proxies: dict = None, password: str = None, exe
     async with httpx.AsyncClient(proxies=proxies, headers=DEFAULT_HEADERS) as client:
         response = await client.get(url)
     func = functools.partial(decrypt_paste, verify_response(response), extract_passphrase(url), password=password)
-    return await asyncio.get_running_loop().run_in_executor(executor, func)
+    return await get_loop().run_in_executor(executor, func)

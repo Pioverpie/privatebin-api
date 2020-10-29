@@ -2,20 +2,19 @@
 
 """This module provides functions to upload pastes to PrivateBin hosts."""
 
-import asyncio
 import functools
-from concurrent.futures import Executor
-from typing import Tuple, Union, Optional
 import json
+from concurrent.futures import Executor
+from typing import Optional, Tuple, Union
 
 import httpx
 import requests
 from pbincli.api import PrivateBin
 from pbincli.format import Paste
 
-from privatebinapi.common import DEFAULT_HEADERS
+from privatebinapi.common import DEFAULT_HEADERS, get_loop
 from privatebinapi.exceptions import BadCompressionTypeError, BadExpirationTimeError, BadFormatError, \
-    PrivateBinAPIError, BadServerResponseError
+    BadServerResponseError, PrivateBinAPIError
 
 __all__ = ('send', 'send_async')
 
@@ -153,7 +152,7 @@ async def send_async(server: str, *, text: str = None, file: str = None, passwor
         prepare_upload, server, text=text, file=file, password=password, expiration=expiration, compression=compression,
         formatting=formatting, burn_after_reading=burn_after_reading, discussion=discussion
     )
-    data, passcode = await asyncio.get_running_loop().run_in_executor(executor, func)
+    data, passcode = await get_loop().run_in_executor(executor, func)
     async with httpx.AsyncClient(proxies=proxies, headers=DEFAULT_HEADERS) as client:
         response = await client.post(server, data=data)
     return process_result(response, passcode)
