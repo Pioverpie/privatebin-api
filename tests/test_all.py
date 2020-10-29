@@ -14,8 +14,7 @@ def test_full():
     )
     text = privatebinapi.get(url, password='foobar')
     assert text == MESSAGE
-    data = privatebinapi.delete(url, delete_token)
-    assert data['status'] == 0
+    privatebinapi.delete(url, delete_token)
 
 
 def test_bad_compression():
@@ -51,8 +50,7 @@ async def test_async_full():
     url, delete_token = await privatebinapi.send_async(SERVER, text=MESSAGE)
     text = await privatebinapi.get_async(url)
     assert text == MESSAGE
-    data = await privatebinapi.delete_async(url, delete_token)
-    assert data['status'] == 0
+    await privatebinapi.delete_async(url, delete_token)
     await asyncio.sleep(0.1)
 
 

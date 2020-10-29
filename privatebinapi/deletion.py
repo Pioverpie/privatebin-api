@@ -45,7 +45,7 @@ def delete(url: str, token: str, *, proxies: dict = None):
             data=json.dumps({'pasteid': paste_id, 'deletetoken': token})
         )
 
-    return verify_response(response)
+    return verify_response(response)['id']
 
 
 async def delete_async(url: str, token: str, *, proxies: dict = None):
@@ -64,4 +64,4 @@ async def delete_async(url: str, token: str, *, proxies: dict = None):
             data=json.dumps({'pasteid': paste_id, 'deletetoken': token})
         )
 
-    return verify_response(response)
+    return verify_response(response)['id']
