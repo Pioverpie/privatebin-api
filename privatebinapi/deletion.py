@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""This module provides functions to delete pastes from PrivateBin instances."""
+"""Provides functions to delete pastes from PrivateBin instances."""
 
 import json
 from typing import Tuple

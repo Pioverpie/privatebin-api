@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""This module contains privatebinapi's exceptions."""
+"""Contains privatebinapi's exceptions."""
 
 
 class PrivateBinAPIError(Exception):

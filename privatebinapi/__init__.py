@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Wrapper for the PrivateBin API"""
+"""Wrapper for the PrivateBin API."""
 
 from privatebinapi.deletion import delete, delete_async
 from privatebinapi.download import get, get_async

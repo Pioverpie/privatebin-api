@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""This module provides functions to download pastes from PrivateBin hosts."""
+"""Provides functions to download pastes from PrivateBin hosts."""
 
 import functools
 from concurrent.futures import Executor

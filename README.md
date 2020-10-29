@@ -22,11 +22,10 @@ PrivateBin API officially supports Python 3.6+.
 
 ## Supported Features 
 
- - Full support for both synchronous and asynchronous code
- - Fill out rest later
+  - Full support for both synchronous and asynchronous code
+  - Fill out rest later
  
 ## Examples
-
 
 ### Basic usage
 
