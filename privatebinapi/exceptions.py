@@ -25,3 +25,7 @@ class BadServerResponseError(PrivateBinAPIError):
     This could mean that the url that was passed as an argument is not a valid PrivateBin host, or that it simply
     sent an empty response.
     """
+
+
+class UnsupportedFeatureError(PrivateBinAPIError):
+    """Indicates that a PrivateBin host does not support the operation attempted"""

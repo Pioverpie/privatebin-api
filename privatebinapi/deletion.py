@@ -9,6 +9,7 @@ import httpx
 import requests
 
 from privatebinapi.common import DEFAULT_HEADERS, verify_response
+from privatebinapi.exceptions import PrivateBinAPIError, UnsupportedFeatureError
 
 __all__ = ('delete', 'delete_async')
 
@@ -45,7 +46,11 @@ def delete(url: str, token: str, *, proxies: dict = None):
             data=json.dumps({'pasteid': paste_id, 'deletetoken': token})
         )
 
-    return verify_response(response)['id']
+    try:
+        return verify_response(response)
+    except PrivateBinAPIError as error:
+        if error.args[0].startswith('Unable to parse response from '):
+            raise UnsupportedFeatureError('%s does not support manually deleting pastes' % server) from error
 
 
 async def delete_async(url: str, token: str, *, proxies: dict = None):
@@ -64,4 +69,8 @@ async def delete_async(url: str, token: str, *, proxies: dict = None):
             data=json.dumps({'pasteid': paste_id, 'deletetoken': token})
         )
 
-    return verify_response(response)['id']
+    try:
+        return verify_response(response)
+    except PrivateBinAPIError as error:
+        if error.args[0].startswith('Unable to parse response from '):
+            raise UnsupportedFeatureError('%s does not support manually deleting pastes' % server) from error

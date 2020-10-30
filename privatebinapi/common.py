@@ -9,7 +9,7 @@ from typing import Union
 import httpx
 import requests
 
-from privatebinapi.exceptions import BadServerResponseError
+from privatebinapi.exceptions import BadServerResponseError, PrivateBinAPIError
 
 __all__ = ('get_loop', 'verify_response', 'DEFAULT_HEADERS')
 
@@ -26,6 +26,9 @@ def verify_response(response: Union[requests.Response, httpx.Response]) -> dict:
         data = response.json()
     except json.JSONDecodeError as error:
         raise BadServerResponseError('Unable to parse response from %s' % response.url) from error
+    if data['status'] != 0:
+        raise PrivateBinAPIError(data['message'])
+
     return data
 
 

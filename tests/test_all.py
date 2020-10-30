@@ -5,53 +5,64 @@ import pytest
 
 import privatebinapi
 from privatebinapi import common, deletion, download, upload
-from tests import MESSAGE, RESPONSE_DATA, SERVER
+from tests import MESSAGE, RESPONSE_DATA, SERVERS_AND_FILES
 
 
-def test_full():
-    url, delete_token = privatebinapi.send(
-        SERVER, text=MESSAGE, file='tests/__init__.py', password='foobar', compression=None,
+@pytest.mark.parametrize("server, file", SERVERS_AND_FILES)
+def test_full(server, file):
+    send_data = privatebinapi.send(
+        server, text=MESSAGE, file=file, password='foobar', compression=None,
     )
-    text = privatebinapi.get(url, password='foobar')
-    assert text == MESSAGE
-    privatebinapi.delete(url, delete_token)
+    get_data = privatebinapi.get(send_data['full_url'], password='foobar')
+    assert get_data['text'] == MESSAGE
+    if file:
+        with open(file, 'rb') as file:
+            assert get_data['attachment']['content'] == file.read()
+    try:
+        privatebinapi.delete(send_data['full_url'], send_data['deletetoken'])
+    except privatebinapi.UnsupportedFeatureError:
+        pass
 
 
 def test_bad_compression():
     try:
-        privatebinapi.send(SERVER, text=MESSAGE, compression='clearly-fake-compression')
+        privatebinapi.send('', text=MESSAGE, compression='clearly-fake-compression')
     except privatebinapi.BadCompressionTypeError:
         pass
 
 
 def test_bad_expiration():
     try:
-        privatebinapi.send(SERVER, text=MESSAGE, expiration='clearly-incorrect-expiration')
+        privatebinapi.send('', text=MESSAGE, expiration='clearly-incorrect-expiration')
     except privatebinapi.BadExpirationTimeError:
         pass
 
 
 def test_bad_formatting():
     try:
-        privatebinapi.send(SERVER, text=MESSAGE, formatting='clearly-incorrect-format')
+        privatebinapi.send('', text=MESSAGE, formatting='clearly-incorrect-format')
     except privatebinapi.BadFormatError:
         pass
 
 
 def test_send_nothing():
     try:
-        privatebinapi.send(SERVER)
+        privatebinapi.send('')
     except ValueError:
         pass
 
 
+@pytest.mark.parametrize("server, _", SERVERS_AND_FILES)
 @pytest.mark.asyncio
-async def test_async_full():
-    url, delete_token = await privatebinapi.send_async(SERVER, text=MESSAGE)
-    text = await privatebinapi.get_async(url)
-    assert text == MESSAGE
-    await privatebinapi.delete_async(url, delete_token)
-    await asyncio.sleep(0.1)
+async def test_async_full(server, _):
+    send_data = await privatebinapi.send_async(server, text=MESSAGE)
+    get_data = await privatebinapi.get_async(send_data['full_url'])
+    assert get_data['text'] == MESSAGE
+    try:
+        await privatebinapi.delete_async(send_data['full_url'], send_data['deletetoken'])
+    except privatebinapi.UnsupportedFeatureError:
+        pass
+    await asyncio.sleep(0.5)
 
 
 def test_bad_server():
@@ -62,7 +73,7 @@ def test_bad_server():
 
 
 class FakeResponse:
-    url = SERVER
+    url = ''
 
     def __init__(self, error=False):
         self.error = error
@@ -95,9 +106,9 @@ def test_bad_process_url():
         pass
 
 
-def test_bad_decrypt():
+def test_bad_status():
     try:
-        download.decrypt_paste(RESPONSE_DATA, '', '')
+        common.verify_response(FakeResponse())  # noqa
     except privatebinapi.PrivateBinAPIError:
         pass
 
