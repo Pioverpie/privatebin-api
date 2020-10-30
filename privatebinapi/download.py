@@ -10,12 +10,11 @@ import requests
 from pbincli.format import Paste
 
 from privatebinapi.common import DEFAULT_HEADERS, get_loop, verify_response
-from privatebinapi.exceptions import PrivateBinAPIError
 
 __all__ = ('get', 'get_async')
 
 
-def decrypt_paste(data, passphrase: str, password: str = None) -> str:
+def decrypt_paste(data: dict, passphrase: str, password: str = None) -> dict:
     """Decrypt a paste.
 
     :param data: The JSON component of a response from a PrivateBin host.
@@ -23,8 +22,6 @@ def decrypt_paste(data, passphrase: str, password: str = None) -> str:
     :param password: Password for decrypting the paste.
     :return: The decrypted text content of the paste.
     """
-    if data['status'] != 0:
-        raise PrivateBinAPIError(data['message'])
     paste = Paste()
     if password:
         paste.setPassword(password)
@@ -33,7 +30,26 @@ def decrypt_paste(data, passphrase: str, password: str = None) -> str:
     paste.loadJSON(data)
 
     paste.decrypt()
-    return paste.getText().decode('utf-8')
+
+    attachment_bytes, attachment_name = paste.getAttachment()
+
+    output = {
+        'attachment': {
+            'content': attachment_bytes or None,
+            'filename': attachment_name or None
+        },
+        'comment_count': data['comment_count'],
+        'comment_offset': data['comment_offset'],
+        'comments': data['comments'],
+        'id': data['id'],
+        'meta': data['meta'],
+        'status': data['status'],
+        'text': paste.getText().decode('utf-8'),
+        'url': data['url'],
+        'v': data.get('v', 1)
+    }
+
+    return output
 
 
 def extract_passphrase(url: str) -> str:
@@ -50,7 +66,7 @@ def extract_passphrase(url: str) -> str:
     return passphrase
 
 
-def get(url: str, *, proxies: dict = None, password: str = None) -> str:
+def get(url: str, *, proxies: dict = None, password: str = None) -> dict:
     """Download a paste from a PrivateBin host.
 
     :param url: The full URL of a paste, including passphrase.
@@ -79,4 +95,5 @@ async def get_async(url: str, *, proxies: dict = None, password: str = None, exe
     async with httpx.AsyncClient(proxies=proxies, headers=DEFAULT_HEADERS) as client:
         response = await client.get(url)
     func = functools.partial(decrypt_paste, verify_response(response), extract_passphrase(url), password=password)
-    return await get_loop().run_in_executor(executor, func)
+    result = await get_loop().run_in_executor(executor, func)
+    return result

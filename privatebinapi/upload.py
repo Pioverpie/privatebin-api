@@ -12,13 +12,13 @@ import requests
 from pbincli.api import PrivateBin
 from pbincli.format import Paste
 
-from privatebinapi.common import DEFAULT_HEADERS, get_loop
+from privatebinapi.common import DEFAULT_HEADERS, get_loop, verify_response
 from privatebinapi.exceptions import BadCompressionTypeError, BadExpirationTimeError, BadFormatError, \
     BadServerResponseError, PrivateBinAPIError
 
 __all__ = ('send', 'send_async')
 
-COMPRESSION_TYPES = ('zlib',)
+COMPRESSION_TYPES = ('zlib', None)
 EXPIRATION_TIMES = ("5min", "10min", "1hour", "1day", "1week", "1month", "1year", "never")
 FORMAT_TYPES = ('plaintext', 'syntaxhighlighting', 'markdown')
 
@@ -43,6 +43,10 @@ def prepare_upload(server: str, *, text: str = None, file: str = None, password:
         raise ValueError("text and file many not both be None")
     if formatting not in FORMAT_TYPES:
         raise BadFormatError('formatting %s must be in %s' % (repr(formatting), FORMAT_TYPES))
+    if expiration not in EXPIRATION_TIMES:
+        raise BadExpirationTimeError('expiration %s must be in %s' % (repr(expiration), EXPIRATION_TIMES))
+    if compression not in COMPRESSION_TYPES:
+        raise BadCompressionTypeError('compression %s must be in %s' % (repr(compression), COMPRESSION_TYPES))
 
     paste = Paste()
     settings = {
@@ -63,10 +67,7 @@ def prepare_upload(server: str, *, text: str = None, file: str = None, password:
         raise BadServerResponseError("The host failed to respond with PrivateBin version information.") from error
     paste.setVersion(version)
     if version == 2 and compression:
-        if compression in COMPRESSION_TYPES:
-            paste.setCompression(compression)
-        else:
-            raise BadCompressionTypeError('compression %s must be in %s' % (repr(compression), COMPRESSION_TYPES))
+        paste.setCompression(compression)
     else:
         paste.setCompression('none')
 
@@ -75,8 +76,6 @@ def prepare_upload(server: str, *, text: str = None, file: str = None, password:
         paste.setPassword(password)
     if file:
         paste.setAttachment(file)
-    if expiration not in EXPIRATION_TIMES:
-        raise BadExpirationTimeError('expiration %s must be in %s' % (repr(expiration), EXPIRATION_TIMES))
     paste.encrypt(formatting, burn_after_reading, discussion, expiration)
     data = paste.getJSON()
     return data, paste.getHash()
@@ -89,13 +88,18 @@ def process_result(response: Union[requests.Response, httpx.Response], passcode:
     :param passcode: The passcode of the paste.
     :return: A tuple containing the paste's URL and delete token.
     """
-    data = response.json()
-    url = str(response.url)
-    if not url.endswith('/'):
-        url += '/'
+    data = verify_response(response)
 
     if data['status'] == 0:
-        return str(response.url) + '?' + data['id'] + '#' + passcode, data['deletetoken']
+        url = str(response.url)
+
+        output = {
+            **data,
+            'full_url': url + '?' + data['id'] + '#' + passcode,
+            'passcode': passcode
+        }
+        return output
+        # return str(response.url) + '?' + data['id'] + '#' + passcode, data['deletetoken']
     raise PrivateBinAPIError("Error uploading paste: %s" % data['message'])
 
 
