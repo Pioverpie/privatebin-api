@@ -59,7 +59,7 @@ To send a paste containing nothing but text, do the following:
 
 You can expect the send function to return something similar to the following:
 
-.. code:: python
+.. code::
 
    {
        "deletetoken": "< paste delete token >",
@@ -179,11 +179,11 @@ Getting a paste from a PrivateBin host is very easy:
 
 You can expect the get function to return something similar to the following:
 
-.. code:: python
+.. code::
 
    {
        "attachment": {
-           "content": b"< attachment content in bytes >"
+           "content": b"< attachment content in bytes >",
            "filename": "< name of attachment >"
        },
        "id": '< paste ID >",
@@ -215,7 +215,7 @@ Deleting a Paste
 
 You can expect the delete function to return something similar to the following:
 
-.. code:: python
+.. code::
 
    {
        "id": '< paste ID >",
