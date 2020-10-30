@@ -38,9 +38,6 @@ def decrypt_paste(data: dict, passphrase: str, password: str = None) -> dict:
             'content': attachment_bytes or None,
             'filename': attachment_name or None
         },
-        'comment_count': data['comment_count'],
-        'comment_offset': data['comment_offset'],
-        'comments': data['comments'],
         'id': data['id'],
         'meta': data['meta'],
         'status': data['status'],
