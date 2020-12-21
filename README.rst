@@ -1,11 +1,12 @@
+==============
 PrivateBin API
 ==============
 
 |Codacy Badge| |codecov| |Build Status| |Maintainability| |Code Climate issues| |Code Climate technical debt|
-|GitHub repo size| |License|
+|GitHub repo size| |License badge|
 
-PrivateBin API is a wrapper for API interactions with PrivateBin hosts.
-It allows you to send, get, and delete pastes from PrivateBin hosts.
+PrivateBin API is a wrapper for API interactions with PrivateBin instances.
+It allows you to send, get, and delete pastes from PrivateBin instances.
 
 Installing PrivateBin API and Supported Versions
 ------------------------------------------------
@@ -18,11 +19,14 @@ PrivateBin API is available on PyPI: (not quite yet)
 
 PrivateBin API officially supports Python 3.6+.
 
-Supported Features
-------------------
+Features
+--------
 
+-  Send, retrieve, and delete pastes on any PrivateBin instance
+-  Officially supports PrivateBin 1.0 through 1.3
 -  Full support for both synchronous and asynchronous code
--  Fill out rest later
+-  Upload and download files
+-  Proxy support
 
 Examples
 --------
@@ -42,7 +46,7 @@ example of the most basic features is shown below:
    True
    >>> delete_response = privatebinapi.delete(send_response["full_url"], send_response["deletetoken"])
 
-Each function returns a modified version of the JSON received from the PrivateBin host.
+Each function returns a modified version of the JSON received from the PrivateBin instance.
 
 All parameters shown in the docs below are optional and may be combined
 in any way.
@@ -59,7 +63,7 @@ To send a paste containing nothing but text, do the following:
 
 You can expect the send function to return something similar to the following:
 
-.. code::
+.. code:: text
 
    {
        "deletetoken": "< paste delete token >",
@@ -140,7 +144,7 @@ Burn After Reading
 ^^^^^^^^^^^^^^^^^^
 
 If you want a paste to be deleted immediately after being read, pass
-``True`` to the ``burn_after_reading`` parameter. The default is
+``True`` to the *burn_after_reading* parameter. The default is
 ``False``.
 
 .. code:: python
@@ -155,7 +159,7 @@ If you want a paste to be deleted immediately after being read, pass
 Enable Discussion
 ^^^^^^^^^^^^^^^^^
 
-To enable discussion, pass ``True`` to the ``discussion`` parameter. The
+To enable discussion, pass ``True`` to the *discussion* parameter. The
 default is ``False``.
 
 .. code:: python
@@ -170,7 +174,7 @@ default is ``False``.
 Getting a Paste
 ~~~~~~~~~~~~~~~
 
-Getting a paste from a PrivateBin host is very easy:
+Getting a paste from a PrivateBin instance is very easy:
 
 .. code:: python
 
@@ -179,7 +183,7 @@ Getting a paste from a PrivateBin host is very easy:
 
 You can expect the get function to return something similar to the following:
 
-.. code::
+.. code:: text
 
    {
        "attachment": {
@@ -200,7 +204,7 @@ You can expect the get function to return something similar to the following:
 Getting a Password Protected Paste
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If the paste is password protected, use the ``password`` parameter.
+If the paste is password protected, use the *password* parameter.
 
 .. code:: python
 
@@ -215,7 +219,7 @@ Deleting a Paste
 
 You can expect the delete function to return something similar to the following:
 
-.. code::
+.. code:: text
 
    {
        "id": '< paste ID >",
@@ -236,7 +240,7 @@ To delete a paste, you need its URL and delete token.
 Using a Proxy
 ~~~~~~~~~~~~~
 
-All functions have an optional keyword parameter, ``proxies``, that
+All functions have an optional keyword parameter, *proxies*, that
 accepts a dictionary of proxies like you would see in the Requests
 package.
 
@@ -280,9 +284,17 @@ same parameters that their synchronous counterparts do.
    loop.run_until_complete(main())
 
 Both ``privatebinapi.send`` and ``privatebinapi.get`` do encryption and
-decryption using an executor. By default it will use the default
-executor for your loop, but you can pass a custom one by way of the
-``executor`` parameter.
+decryption using an executor_. It will use the default
+executor for your event loop if *executor* is ``None``.
+
+.. _executor: https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.Executor
+
+License
+~~~~~~~
+PrivateBin API is offered under the `MIT license`_.
+
+.. _MIT license: https://github.com/Pioverpie/privatebin-api/blob/master/LICENSE
+
 
 .. |Codacy Badge| image:: https://app.codacy.com/project/badge/Grade/b0b11fa99727453eb219bcd0b03f5868
    :target: https://www.codacy.com/gh/Pioverpie/privatebin-api/dashboard
@@ -298,5 +310,6 @@ executor for your loop, but you can pass a custom one by way of the
    :target: https://codeclimate.com/github/Pioverpie/privatebin-api/trends/technical_debt
 .. |GitHub repo size| image:: https://img.shields.io/github/repo-size/Pioverpie/privatebin-api
    :target: https://github.com/Pioverpie/privatebin-api
-.. |License| image:: https://img.shields.io/github/license/Pioverpie/privatebin-api
+.. |License badge| image:: https://img.shields.io/github/license/Pioverpie/privatebin-api
    :alt: GitHub
+   :target: https://github.com/Pioverpie/privatebin-api/blob/master/LICENSE
