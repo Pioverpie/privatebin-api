@@ -11,7 +11,7 @@ It allows you to send, get, and delete pastes from PrivateBin instances.
 Installing PrivateBin API and Supported Versions
 ------------------------------------------------
 
-PrivateBin API is available on PyPI: (not quite yet)
+PrivateBin API is available on PyPI:
 
 .. code:: console
 
