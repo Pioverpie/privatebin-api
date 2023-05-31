@@ -25,7 +25,7 @@ def verify_response(response: Union[requests.Response, httpx.Response]) -> dict:
     try:
         data = response.json()
     except json.JSONDecodeError as error:
-        raise BadServerResponseError('Unable to parse response from %s' % response.url) from error
+        raise BadServerResponseError('Unable to parse response from %s [status %s]' % (response.url, response.status_code)) from error
     if data['status'] != 0:
         raise PrivateBinAPIError(data['message'])
 
